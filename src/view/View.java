@@ -1,4 +1,4 @@
-package src.view;
+package view;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,7 +26,6 @@ public class View extends JFrame {
         browseButton = new JButton("Browse");
         loadButton = new JButton("Load");
         systemLable = new JLabel("Select the input file");
-//        loadLable = new JLabel("Load and make schedule");
     }
 
     private void initWindow() {

@@ -1,6 +1,5 @@
-import src.model.Model;
-import src.view.View;
-import src.Controller;
+import model.Model;
+import view.View;
 
 /**
  * Created by Ted on 3/20/2018.
