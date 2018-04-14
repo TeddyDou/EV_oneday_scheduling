@@ -1,8 +1,11 @@
 /**
  * Created by Ted on 3/20/2018.
  */
+import model.EVCharger;
 import model.Model;
 import view.View;
+
+import java.util.List;
 
 public class Controller {
 
@@ -16,22 +19,35 @@ public class Controller {
     }
 
     public void initView() {
-        view.init();
+        view.init(view.getBrowseButton(), view.getLoadButton());
     }
 
     public void initController() {
         view.getBrowseButton().addActionListener(e -> selectFile());
         view.getLoadButton().addActionListener(e -> loadFile());
-//        view.getHello().addActionListener(e -> sayHello());
-//        view.getBye().addActionListener(e -> sayBye());
+    }
+
+    private void initPostprocessingController() {
+        view.getExcelButton().addActionListener(e -> outputExcel());
+        view.getGanttButton().addActionListener(e -> outputGantt());
+    }
+
+    private void outputGantt() {
+        view.generateGantt(model.getAssignedNumber());
+    }
+
+    private void outputExcel() {
+        model.generateExcel();
     }
 
     private void loadFile() {
         if(view.isFileValid()){
             model.setInputFile(view.getInputFile());
             try {
-                model.processData();
                 view.showProcessing();
+                List<EVCharger> chargers = model.processData();
+                view.showPostprocessing(chargers);
+                initPostprocessingController();
             } catch (Exception e) {
                 view.fileNoInputMsg();
             }

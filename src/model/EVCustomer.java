@@ -12,7 +12,7 @@ public class EVCustomer {
         return "EVCustomer{" +
                 "evID=" + evID +
 //                ", distance=" + distance +
-//                ", typeID=" + typeID +
+                ", typeID=" + typeID +
 //                ", assignedCharger=" + assignedCharger +
                 ", chargingTime=" + chargingTime +
                 ", timeWindow=" + timeWindow +

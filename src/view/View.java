@@ -1,8 +1,11 @@
 package view;
 
+import model.EVCharger;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.util.List;
 
 /**
  * Created by Ted on 3/20/2018.
@@ -13,8 +16,11 @@ public class View extends JFrame {
     final static int HEIGHT = 400;
     private JButton browseButton;
     private JButton loadButton;
+    private JButton excelButton;
+    private JButton ganttButton;
     private JLabel systemLable;
     private File inputFile;
+    private List<EVCharger> chargers;
 
     public View(String title){
         super(title);
@@ -25,6 +31,8 @@ public class View extends JFrame {
     private void initComponent() {
         browseButton = new JButton("Browse");
         loadButton = new JButton("Load");
+        ganttButton = new JButton("Gantt Chart");
+        excelButton = new JButton("Excel");
         systemLable = new JLabel("Select the input file");
     }
 
@@ -36,17 +44,18 @@ public class View extends JFrame {
     }
 
     //add component to frame
-    public void init() {
+    public void init(JButton button1, JButton button2) {
+        this.getContentPane().removeAll();
         this.getContentPane().setLayout(new BorderLayout());
         GroupLayout layout = new GroupLayout(this.getContentPane());
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
         layout.setHorizontalGroup(layout.createSequentialGroup().addContainerGap(100, 150).addGroup(layout
                 .createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(systemLable)
-                .addComponent(browseButton).addComponent(loadButton)));
+                .addComponent(button1).addComponent(button2)));
         layout.setVerticalGroup(layout.createSequentialGroup().addContainerGap(50, 80).addComponent(systemLable)
-                .addComponent(browseButton).addComponent(loadButton));
-        layout.linkSize(SwingConstants.HORIZONTAL, browseButton, loadButton);
+                .addComponent(button1).addComponent(button2));
+        layout.linkSize(SwingConstants.HORIZONTAL, button1, button2);
         this.getContentPane().setLayout(layout);
     }
 
@@ -91,9 +100,8 @@ public class View extends JFrame {
     public boolean isFileValid() {
         try{
             String fileType = inputFile.getName().substring(inputFile.getName().lastIndexOf(".") + 1);
-            System.out.println(fileType);
+//            System.out.println(fileType);
             if (!inputFile.exists()||(!fileType.equals("xls") && !fileType.equals("xlsx"))){
-                System.out.println((fileType.equals("xlsx")));
                 invalidFileMsg();
                 return false;
             }
@@ -130,4 +138,45 @@ public class View extends JFrame {
         loadButton.setEnabled(false);
         systemLable.setText("The system is Scheduling...");
     }
+
+    public JButton getExcelButton() {
+        return excelButton;
+    }
+
+    public void setExcelButton(JButton excelButton) {
+        this.excelButton = excelButton;
+    }
+
+    public JButton getGanttButton() {
+        return ganttButton;
+    }
+
+    public void setGanttButton(JButton ganttButton) {
+        this.ganttButton = ganttButton;
+    }
+
+    public void showPostprocessing(List<EVCharger> chargers) {
+        systemLable.setText("Finish calculation. Select your preferred output format.");
+        this.init(ganttButton, excelButton);
+//        this.getContentPane().removeAll();
+//        this.getContentPane().setLayout(new BorderLayout());
+//        GroupLayout layout = new GroupLayout(this.getContentPane());
+//        layout.setAutoCreateGaps(true);
+//        layout.setAutoCreateContainerGaps(true);
+//        layout.setHorizontalGroup(layout.createSequentialGroup().addContainerGap(100, 150).addGroup(layout
+//                .createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(systemLable)
+//                .addComponent(ganttButton)));
+//        layout.setVerticalGroup(layout.createSequentialGroup().addContainerGap(50, 80).addComponent(systemLable)
+//                .addComponent(ganttButton));
+//        layout.linkSize(SwingConstants.HORIZONTAL, , button2);
+//        this.getContentPane().setLayout(layout);
+
+//        ****
+        this.chargers = chargers;
+    }
+
+    public void generateGantt(int number){
+        new GanttChart(chargers, "Scheduling Gantt Chart", number).run();
+    }
+
 }

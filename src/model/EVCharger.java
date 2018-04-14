@@ -5,6 +5,7 @@ import java.util.List;
 
 public class EVCharger {
     int ID, chargerType;
+
     List<EVCustomer> assignedList;
     int availableDuration;
 
@@ -30,6 +31,15 @@ public class EVCharger {
 
     public void setAvailableDuration(int availableDuration) {
         this.availableDuration = availableDuration;
+    }
+
+
+    public int getID() {
+        return ID;
+    }
+
+    public int getChargerType() {
+        return chargerType;
     }
 
     @Override

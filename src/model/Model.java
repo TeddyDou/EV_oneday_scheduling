@@ -2,8 +2,12 @@ package model;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
@@ -32,16 +36,26 @@ public class Model {
         chargers = new ArrayList();
     }
 
-    public void processData() throws Exception{
+    public List<EVCharger> processData() throws Exception{
         System.out.println("Input file is "+ inputFile.getName());
 
         readInputSheet();
         scheduling();
 
-        for(EVCharger c : chargers){
-            System.out.println(c.toString());
-        }
+//        for(EVCharger c : chargers){
+//            System.out.println(c.toString());
+//        }
         System.out.println("Finish calculation");
+        return this.chargers;
+    }
+
+    public int getAssignedNumber(){
+        int number = 0;
+        for (EVCharger c : this.chargers) {
+            System.out.println("number " + c.getAssignedList().size());
+            number += c.getAssignedList().size();
+        }
+        return number;
     }
 
     private void scheduling() {
@@ -191,4 +205,69 @@ public class Model {
             e.printStackTrace();
         }
     }
+
+    public void generateExcel() {
+        String FILE_NAME = "OutputExcel.xlsx";
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("Schedule");
+        Object[][] datatypes = {
+                {"Datatype", "Type", "Size(in bytes)"},
+                {"int", "Primitive", 2},
+                {"float", "Primitive", 4},
+                {"double", "Primitive", 8},
+                {"char", "Primitive", 1},
+                {"String", "Non-Primitive", "No fixed size"}
+        };
+        int rowNum = 0;
+        System.out.println("Creating excel");
+
+        Row row = sheet.createRow(rowNum);
+
+        Cell cell1 = row.createCell(0);
+        cell1.setCellValue("ID");
+        Cell cell2 = row.createCell(1);
+        cell2.setCellValue("Type");
+        Cell cell3 = row.createCell(2);
+        cell3.setCellValue("Start Time");
+        Cell cell4 = row.createCell(3);
+        cell4.setCellValue("End Time");
+        Cell cell5 = row.createCell(4);
+        cell5.setCellValue("Charger ID");
+
+        for (EVCharger c : chargers) {
+            for (EVCustomer ev : c.getAssignedList()){
+                rowNum ++;
+                writeToRow(sheet, ev, rowNum, c.getID());
+
+            }
+        }
+
+        try {
+            outputFile = new File(FILE_NAME);
+            FileOutputStream outputStream = new FileOutputStream(outputFile);
+            workbook.write(outputStream);
+            workbook.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Done");
+    }
+
+    private void writeToRow(XSSFSheet sheet, EVCustomer ev, int rowNum, int chargerID) {
+        Row row = sheet.createRow(rowNum);
+        Cell cell1 = row.createCell(0);
+        cell1.setCellValue(ev.getEvID());
+        Cell cell2 = row.createCell(1);
+        cell2.setCellValue(ev.getTypeID());
+        Cell cell3 = row.createCell(2);
+        cell3.setCellValue(ev.getAssignedStartTime().toString());
+        Cell cell4 = row.createCell(3);
+        cell4.setCellValue(ev.getAssignedEndTime().toString());
+        Cell cell5 = row.createCell(4);
+        cell5.setCellValue(chargerID);
+    }
+
 }
