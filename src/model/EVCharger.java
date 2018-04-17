@@ -74,7 +74,8 @@ public class EVCharger {
             }
         }
         newEV.updateAssignedTime(earliestTime);
-        //changed
+
+        //before changed
         if (!newEV.getEndTime().isEarlier(newEV.getAssignedEndTime()) &&
             calibrateNextEV(lastAssignedIndex + 1, newEV.getAssignedEndTime())){
             this.assignEV(newEV, lastAssignedIndex + 1);
@@ -85,14 +86,69 @@ public class EVCharger {
 
         }
 
-        //calibration of following EV customers
-//        if (calibrateNextEV(lastAssignedIndex + 1, newEV.getAssignedEndTime())) {
-//            this.assignEV(newEV, lastAssignedIndex + 1);
-//            return true;
-//        } else {
-//            newEV.undoAssignedTime();
-//            return false;
+    }
+
+    public boolean positioning(EVCustomer newEV){
+        Time earliestTime = newEV.getStartTime();
+        int lastAssignedIndex = -1;
+        for (EVCustomer ev : assignedList) {
+            if (!ev.getAssignedEndTime().isEarlierOrEqual(earliestTime) && ev.getAssignedStartTime().isEarlierOrEqual
+                    (earliestTime)
+                    ) {
+                earliestTime = ev.getAssignedEndTime();
+                lastAssignedIndex = assignedList.indexOf(ev);
+                break;
+            }
+        }
+        newEV.updateAssignedTime(earliestTime);
+
+//        while (!calibrateNextEV(lastAssignedIndex + 1, newEV.getAssignedEndTime())){
+//            if (!newEV.getEndTime().isEarlier(newEV.getAssignedEndTime())){
+//                lastAssignedIndex++;
+//                newEV.updateAssignedTime(assignedList.get(lastAssignedIndex).getAssignedEndTime());
+//            }
+//            else {
+//                newEV.undoAssignedTime();
+//                return false;
+//            }
+//
 //        }
+
+
+        //new change
+        while (!newEV.getEndTime().isEarlier(newEV.getAssignedEndTime()) && newEV.getStartTime().isEarlierOrEqual
+                (newEV.getAssignedStartTime())){
+            if(!calibrateNextEV(lastAssignedIndex + 1, newEV.getAssignedEndTime())){
+                lastAssignedIndex ++;
+                EVCustomer tempEV = assignedList.get(lastAssignedIndex);
+                if (!tempEV.getAssignedEndTime().isEarlier(earliestTime) && tempEV.getAssignedStartTime().isEarlierOrEqual(earliestTime))
+                    newEV.updateAssignedTime(assignedList.get(lastAssignedIndex).getAssignedEndTime());
+                else
+                    return false;
+            }
+            else {
+                this.assignEV(newEV, lastAssignedIndex + 1);
+                return true;
+            }
+        }
+
+        newEV.undoAssignedTime();
+        return false;
+
+//        while (!calibrateNextEV(lastAssignedIndex + 1, newEV.getAssignedEndTime())){
+//            if (!newEV.getEndTime().isEarlier(newEV.getAssignedEndTime())){
+//                lastAssignedIndex++;
+//                newEV.updateAssignedTime(assignedList.get(lastAssignedIndex).getAssignedEndTime());
+//            }
+//            else {
+//                newEV.undoAssignedTime();
+//                return false;
+//            }
+//
+//        }
+//
+//        this.assignEV(newEV, lastAssignedIndex + 1);
+//        return true;
     }
 
     private void assignEV(EVCustomer newEV, int i) {
@@ -111,30 +167,35 @@ public class EVCharger {
 
     private boolean calibrateNextEV(int evIndex, Time exceptedShiftTime) {
 
-        if(evIndex == assignedList.size() && exceptedShiftTime.isEarlierOrEqual(Model.MIDNIGHT)){
-            return true;
-        }
+        if (exceptedShiftTime.isEarlierOrEqual(Model.MIDNIGHT)) {
+            if (evIndex == assignedList.size()) {
+                return true;
+            }
 
-        EVCustomer exceptedShiftEV = assignedList.get(evIndex);
+            EVCustomer exceptedShiftEV = assignedList.get(evIndex);
 
-        if (exceptedShiftEV.getAssignedStartTime().isEarlier(exceptedShiftTime)) {
-        try{
-            Time shiftedTime = new Time(exceptedShiftTime, exceptedShiftEV.getChargingTime());
-            if (shiftedTime.isEarlierOrEqual(exceptedShiftEV.getEndTime())){
-                if(calibrateNextEV(evIndex +1, shiftedTime))
-                    exceptedShiftEV.updateAssignedTime(shiftedTime);
-                else
+            if (exceptedShiftEV.getAssignedStartTime().isEarlier(exceptedShiftTime)) {
+                try {
+                    Time shiftedTime = new Time(exceptedShiftTime, exceptedShiftEV.getChargingTime());
+                    if (shiftedTime.isEarlierOrEqual(exceptedShiftEV.getEndTime())) {
+                        if (calibrateNextEV(evIndex + 1, shiftedTime)) {
+                            exceptedShiftEV.updateAssignedTime(exceptedShiftTime);
+                            return true;
+                        }
+                        else
+                            return false;
+                    } else
+                        return false;
+                } catch (Exception e) {
                     return false;
+                }
+
             }
             else
-                return false;
-        }catch (Exception e){
+                return true;
+            }
+        else
             return false;
-        }
-
-        }
-
-        return true;
 
     }
 }

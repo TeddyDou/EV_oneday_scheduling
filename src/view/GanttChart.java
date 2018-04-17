@@ -140,7 +140,6 @@ public class GanttChart extends ApplicationFrame {
                 this.col = col;
                 index = 0;
             }
-            System.out.println("this is index: "+index);
             return clut.get(index);
         }
     }

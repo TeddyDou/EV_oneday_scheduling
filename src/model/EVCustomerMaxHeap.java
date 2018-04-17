@@ -43,11 +43,36 @@ public class EVCustomerMaxHeap {
         Heap[spos] = tmp;
     }
 
+//    private void maxHeapify(int pos) {
+//        if (!isLeaf(pos)) {
+//            if (Heap[pos].getBarWindowRatio() < Heap[leftChild(pos)].getBarWindowRatio() ||
+//                    Heap[pos].getBarWindowRatio() < Heap[rightChild(pos)].getBarWindowRatio()) {
+//                if (Heap[leftChild(pos)].getBarWindowRatio() > Heap[rightChild(pos)].getBarWindowRatio()) {
+//                    swap(pos, leftChild(pos));
+//                    maxHeapify(leftChild(pos));
+//                } else {
+//                    swap(pos, rightChild(pos));
+//                    maxHeapify(rightChild(pos));
+//                }
+//            }
+//        }
+//    }
+//
+//    public void insert(EVCustomer element) {
+//        Heap[++size] = element;
+//        int current = size;
+//
+//        while (Heap[current].getBarWindowRatio() > Heap[parent(current)].getBarWindowRatio()) {
+//            swap(current, parent(current));
+//            current = parent(current);
+//        }
+//    }
+
     private void maxHeapify(int pos) {
         if (!isLeaf(pos)) {
-            if (Heap[pos].getBarWindowRatio() < Heap[leftChild(pos)].getBarWindowRatio() ||
-                    Heap[pos].getBarWindowRatio() < Heap[rightChild(pos)].getBarWindowRatio()) {
-                if (Heap[leftChild(pos)].getBarWindowRatio() > Heap[rightChild(pos)].getBarWindowRatio()) {
+            if (Heap[pos].getScore() < Heap[leftChild(pos)].getScore() ||
+                    Heap[pos].getScore() < Heap[rightChild(pos)].getScore()) {
+                if (Heap[leftChild(pos)].getScore() > Heap[rightChild(pos)].getScore()) {
                     swap(pos, leftChild(pos));
                     maxHeapify(leftChild(pos));
                 } else {
@@ -62,7 +87,7 @@ public class EVCustomerMaxHeap {
         Heap[++size] = element;
         int current = size;
 
-        while (Heap[current].getBarWindowRatio() > Heap[parent(current)].getBarWindowRatio()) {
+        while (Heap[current].getScore() > Heap[parent(current)].getScore()) {
             swap(current, parent(current));
             current = parent(current);
         }

@@ -30,10 +30,39 @@ public class Model {
     static final int CCS = 3;
     static final int SUPERCHARGER =4;
     static final Time MIDNIGHT = new Time("24:00");
+    static double ALPHA = 1.0;
 
     public Model(){
         customers = new ArrayList();
         chargers = new ArrayList();
+    }
+
+    public List<EVCharger> run() throws Exception {
+        ALPHA = calculateAlpha();
+        return processData();
+    }
+
+    private double calculateAlpha() {
+        int max = 0;
+        double preferredAlpha = 1;
+        for (double d = 0.1; d <= 1; d += 0.1) {
+            Model m = new Model();
+            m.setInputFile(inputFile);
+            setALPHA(d);
+            try {
+                m.processData();
+                int n = m.getAssignedNumber();
+                if (n > max){
+                    max = n;
+                    preferredAlpha = d;
+                }
+                System.out.println("Scheduled " + n + " EVs.");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("Max is " + max + " Alpha is " + preferredAlpha);
+        return preferredAlpha;
     }
 
     public List<EVCharger> processData() throws Exception{
@@ -52,7 +81,7 @@ public class Model {
     public int getAssignedNumber(){
         int number = 0;
         for (EVCharger c : this.chargers) {
-            System.out.println("number " + c.getAssignedList().size());
+//            System.out.println("number " + c.getAssignedList().size());
             number += c.getAssignedList().size();
         }
         return number;
@@ -66,8 +95,9 @@ public class Model {
             for (EVCustomer ev : customers){
                 double rate = helper.getRateByPriority(ev.getTypeID(), priority);
                 if (rate != 0){
-                    ev.setChargingTimeAndRatio(rate);
+                    ev.setRatioAndAbsAndScore(rate);
                     if (ev.getBarWindowRatio() <= 1.0)
+//                    if (ev.getBarWindowRatio() >= 1.0)
                         maxHeap.insert(ev);
                 }
             }
@@ -90,9 +120,10 @@ public class Model {
     private void assignEVToCharger(EVCustomer EV, EVCharger charger, int priority, Set<Integer> idFilter) {
 
         //find earliest available time
-//        Time naiveTime = charger.getNaiveEarliestTime(EV.getStartTime());
-//        if(!charger.positioning(EV, naiveTime)){
-        if(!charger.positioning(EV, EV.startTime)){
+
+//        if(!charger.positioning(EV, EV.startTime)){
+        if(!charger.positioning(EV)){
+
             idFilter.add(new Integer(charger.ID));
             selectEVcharger(EV, priority, idFilter);
         }
@@ -105,10 +136,11 @@ public class Model {
 
         //select next preferred charger
         int chargerType = helper.getChargerByPriority(EV.getTypeID(), priority);
-        int maxDuration = 0;
+        int maxDuration = 24 * 60;
+//        int maxDuration = 0;
         EVCharger preferredCharger = null;
         for (EVCharger charger : chargers){
-            if(charger.chargerType == chargerType && charger.getAvailableDuration() > maxDuration && !idFilter
+            if(charger.chargerType == chargerType && charger.getAvailableDuration() <= maxDuration && !idFilter
                     .contains(charger.ID)){
                 maxDuration = charger.getAvailableDuration();
                 preferredCharger = charger;
@@ -172,6 +204,10 @@ public class Model {
         this.chargers.add(charger);
     }
 
+    public static void setALPHA(double alpha) {
+        Model.ALPHA = alpha;
+    }
+
     public String getFilePath() {
         return filePath;
     }
@@ -198,12 +234,35 @@ public class Model {
 
     public static void main(String[] args) {
         Model m = new Model();
-        m.setInputFile(new File("data3.1.xlsx"));
+//        m.setInputFile(new File("data3.1.xlsx"));
+        m.setInputFile(new File("data_final_2.xlsx"));
         try {
             m.processData();
+            System.out.println("Scheduled " + m.getAssignedNumber() + " EVs.");
+            m.generateExcel();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
+        //test alpha
+
+//        int max = 0;
+//        for(double d = 0.1; d <= 1.0; d+=0.1){
+//            Model m = new Model();
+//            m.setInputFile(new File("data_final_2.xlsx"));
+//            m.setALPHA(d);
+//            try {
+//                m.processData();
+//                int n = m.getAssignedNumber();
+//                if (n > max)
+//                    max = n;
+//                System.out.println("Scheduled " + n + " EVs." + " Alpha is " + d);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            System.out.println("Max is " + max);
+//        }
     }
 
     public void generateExcel() {

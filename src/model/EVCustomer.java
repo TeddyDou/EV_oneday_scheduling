@@ -1,11 +1,22 @@
 package model;
 
+import static model.Model.ALPHA;
+
 public class EVCustomer {
     int evID, distance, typeID, numberOfCharger, assignedCharger, chargingTime, timeWindow;
     Time startTime, endTime, assignedStartTime, assignedEndTime;
     double barWindowRatio, absoluteLength;
     boolean isAssigned;
     String typeName;
+
+    /////////////////////////////////////////////////////////////////////////
+    //      This formula combines barWindowRation and absoluteLength       //
+    //      and weights them.                                              //
+    //                                                                     //
+    //      score = alpha * barWindowRatio + (1 - alpha) * absoluteLength  //
+    //                                                                     //
+    /////////////////////////////////////////////////////////////////////////
+    double score;
 
     @Override
     public String toString() {
@@ -122,6 +133,14 @@ public class EVCustomer {
         this.endTime = endTime;
     }
 
+    public double getScore() {
+        return score;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
+    }
+
     public Time getAssignedStartTime() {
         return assignedStartTime;
     }
@@ -175,6 +194,18 @@ public class EVCustomer {
         this.setChargingTime((int)Math.ceil(this.distance/rate));
         double temp = (double) chargingTime / timeWindow;
         this.setBarWindowRatio(temp);
+    }
+
+    public void setRatioAndAbsAndScore(double rate) {
+        this.setChargingTime((int)Math.ceil(this.distance/rate));
+        double temp = (double) chargingTime / timeWindow;
+//        double temp = (double) timeWindow / chargingTime;
+
+        this.setBarWindowRatio(temp);
+        temp = (double) chargingTime/ (24*60);
+        this.setAbsoluteLength(temp);
+        temp = ALPHA * barWindowRatio + (1 - ALPHA) * absoluteLength;
+        this.setScore(temp);
     }
 
     public void undoAssignedTime() {

@@ -45,10 +45,11 @@ public class Controller {
             model.setInputFile(view.getInputFile());
             try {
                 view.showProcessing();
-                List<EVCharger> chargers = model.processData();
+                List<EVCharger> chargers = model.run();
                 view.showPostprocessing(chargers);
                 initPostprocessingController();
             } catch (Exception e) {
+                e.printStackTrace();
                 view.fileNoInputMsg();
             }
         }
