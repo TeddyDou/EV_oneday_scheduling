@@ -158,20 +158,6 @@ public class View extends JFrame {
     public void showPostprocessing(List<EVCharger> chargers) {
         systemLable.setText("Finish calculation. Select your preferred output format.");
         this.init(ganttButton, excelButton);
-//        this.getContentPane().removeAll();
-//        this.getContentPane().setLayout(new BorderLayout());
-//        GroupLayout layout = new GroupLayout(this.getContentPane());
-//        layout.setAutoCreateGaps(true);
-//        layout.setAutoCreateContainerGaps(true);
-//        layout.setHorizontalGroup(layout.createSequentialGroup().addContainerGap(100, 150).addGroup(layout
-//                .createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(systemLable)
-//                .addComponent(ganttButton)));
-//        layout.setVerticalGroup(layout.createSequentialGroup().addContainerGap(50, 80).addComponent(systemLable)
-//                .addComponent(ganttButton));
-//        layout.linkSize(SwingConstants.HORIZONTAL, , button2);
-//        this.getContentPane().setLayout(layout);
-
-//        ****
         this.chargers = chargers;
     }
 

@@ -1,7 +1,5 @@
 package model;
 
-import java.util.HashMap;
-
 public class EVCustomerMaxHeap {
 
     private EVCustomer[] Heap;
