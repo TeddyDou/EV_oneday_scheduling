@@ -4,7 +4,7 @@ import static model.Model.ALPHA;
 
 public class EVCustomer {
     int evID, distance, typeID, numberOfCharger, assignedCharger, chargingTime, timeWindow;
-    Time startTime, endTime, assignedStartTime, assignedEndTime;
+    int startTime, endTime, assignedStartTime, assignedEndTime, preAssignStartTime, preAssignEndTime;
     double barWindowRatio, absoluteLength;
     boolean isAssigned;
     String typeName;
@@ -36,14 +36,14 @@ public class EVCustomer {
                 '}' + "\n";
     }
 
-    public EVCustomer(int evID, int distance, int typeID, Time startTime, Time endTime) {
+    public EVCustomer(int evID, int distance, int typeID, int startTime, int endTime) {
         this.evID = evID;
         this.distance = distance;
         this.typeID = typeID;
         this.startTime = startTime;
         this.endTime = endTime;
         this.isAssigned = false;
-        this.timeWindow = endTime.getDuration(startTime);
+        this.timeWindow = endTime - startTime;
         this.initTypeName();
 //        System.out.println(toString());
     }
@@ -117,20 +117,20 @@ public class EVCustomer {
         this.chargingTime = chargingTime;
     }
 
-    public Time getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(Time startTime) {
+    public void setStartTime(int startTime) {
         this.startTime = startTime;
     }
 
-    public Time getEndTime() {
-        return endTime;
+    public void setEndTime(int endTime) {
+        this.endTime = endTime;
     }
 
-    public void setEndTime(Time endTime) {
-        this.endTime = endTime;
+    public void setAssignedStartTime(int assignedStartTime) {
+        this.assignedStartTime = assignedStartTime;
+    }
+
+    public void setAssignedEndTime(int assignedEndTime) {
+        this.assignedEndTime = assignedEndTime;
     }
 
     public double getScore() {
@@ -141,20 +141,34 @@ public class EVCustomer {
         this.score = score;
     }
 
-    public Time getAssignedStartTime() {
-        return assignedStartTime;
+    public void updatPreAssignedTime(int preStartTime) {
+        this.preAssignStartTime = preStartTime;
+        this.preAssignEndTime = preStartTime + chargingTime;
     }
 
-    public void updateAssignedTime(Time assignedStartTime) {
-        this.assignedStartTime = assignedStartTime;
-        try{
-            this.assignedEndTime = new Time(assignedStartTime, chargingTime);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+    public int getStartTime() {
+        return startTime;
     }
 
-    public Time getAssignedEndTime() {
+    public int getEndTime() {
+        return endTime;
+    }
+
+    public int getPreAssignStartTime() {
+        return preAssignStartTime;
+    }
+
+    public int getPreAssignEndTime() {
+        return preAssignEndTime;
+    }
+
+    public void updateAssignedTime() {
+
+        this.assignedStartTime = preAssignStartTime;
+        this.assignedEndTime = preAssignEndTime;
+    }
+
+    public int getAssignedEndTime() {
         return assignedEndTime;
     }
 
@@ -208,8 +222,7 @@ public class EVCustomer {
         this.setScore(temp);
     }
 
-    public void undoAssignedTime() {
-        this.assignedStartTime = null;
-        this.assignedEndTime = null;
+    public int getAssignedStartTime() {
+        return this.assignedStartTime;
     }
 }

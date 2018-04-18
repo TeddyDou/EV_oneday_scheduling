@@ -1,6 +1,5 @@
 package model;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -20,6 +19,7 @@ public class Model {
     private List<EVCustomer> customers;
     private List<EVCharger> chargers;
     private ChargingHelper helper;
+    private TimeHelper timeHelper;
     private EVCustomerMaxHeap maxHeap;
 
     static final int NISSAN = 1;
@@ -29,12 +29,14 @@ public class Model {
     static final int CHADEMO = 2;
     static final int CCS = 3;
     static final int SUPERCHARGER =4;
-    static final Time MIDNIGHT = new Time("24:00");
+    static final int MIDNIGHT = 24 * 60;
     static double ALPHA = 1.0;
 
     public Model(){
         customers = new ArrayList();
         chargers = new ArrayList();
+        timeHelper =new TimeHelper();
+        helper = new ChargingHelper();
     }
 
     public List<EVCharger> run() throws Exception {
@@ -88,7 +90,6 @@ public class Model {
     }
 
     private void scheduling() {
-        helper = new ChargingHelper();
         maxHeap = new EVCustomerMaxHeap(300);
         int priority = 3;
         for (; priority > 0; priority--){
@@ -151,8 +152,6 @@ public class Model {
         if (preferredCharger != null){
             assignEVToCharger(EV, preferredCharger, priority, idFilter);
         }
-//        else
-//            System.out.println("here");
 
     }
 
@@ -187,8 +186,8 @@ public class Model {
 
     private void createCustomer(Row row, DataFormatter dataFormatter) {
         int id = Integer.parseInt(dataFormatter.formatCellValue(row.getCell(0)));
-        Time startTime = new Time(dataFormatter.formatCellValue(row.getCell(1)));
-        Time endTime = new Time(dataFormatter.formatCellValue(row.getCell(2)));
+        int startTime = timeHelper.stringTimeToInt(dataFormatter.formatCellValue(row.getCell(1)));
+        int endTime = timeHelper.stringTimeToInt(dataFormatter.formatCellValue(row.getCell(2)));
         int mile = Integer.parseInt(dataFormatter.formatCellValue(row.getCell(3)));
         int typeID = Integer.parseInt(dataFormatter.formatCellValue(row.getCell(4)));
 
@@ -243,6 +242,7 @@ public class Model {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println("Result is correct " + m.isResultValid());
 
 
         //test alpha
@@ -322,11 +322,27 @@ public class Model {
         Cell cell2 = row.createCell(1);
         cell2.setCellValue(ev.getTypeID());
         Cell cell3 = row.createCell(2);
-        cell3.setCellValue(ev.getAssignedStartTime().toString());
+        cell3.setCellValue(timeHelper.intTimeToString(ev.getAssignedStartTime()));
         Cell cell4 = row.createCell(3);
-        cell4.setCellValue(ev.getAssignedEndTime().toString());
+        cell4.setCellValue(timeHelper.intTimeToString(ev.getAssignedEndTime()));
         Cell cell5 = row.createCell(4);
         cell5.setCellValue(chargerID);
     }
 
+    private boolean isResultValid(){
+        boolean result = true;
+        for (EVCharger c : this.chargers){
+            for (EVCustomer ev : c.getAssignedList()){
+                if(ev.getAssignedStartTime() < ev.getStartTime() || ev.getAssignedEndTime() > ev.getEndTime()){
+                    result = false;
+                    System.out.println("*****");
+                    System.out.println("start time " + ev.getStartTime());
+                    System.out.println("assigned start time" + ev.getAssignedStartTime());
+                    System.out.println("end time " + ev.getEndTime());
+                    System.out.println("assigned end time" + ev.getAssignedEndTime());
+                }
+            }
+        }
+        return result;
+    }
 }

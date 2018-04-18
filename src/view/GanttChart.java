@@ -72,14 +72,14 @@ public class GanttChart extends ApplicationFrame {
                 continue;
             Task task = new Task(
                     "Charger ID " + c.getID() + " Type " + c.getChargerType(),
-                    date(0, 0), date(24, 0));
+                    date(0), date(24 * 60));
 //            List<Task> sbtask = new ArrayList<>();
             for(EVCustomer ev : c.getAssignedList()){
 //                System.out.println("======");
                 Task subtask = new Task(
                     "EV ID " + ev.getEvID() + " Type " + ev.getTypeID(),
-                    date(ev.getAssignedStartTime().getHour(), ev.getAssignedStartTime().getMinute()),
-                    date(ev.getAssignedEndTime().getHour(), ev.getAssignedEndTime().getMinute())
+                    date(ev.getAssignedStartTime()),
+                    date(ev.getAssignedEndTime())
                 );
                 task.addSubtask(subtask);
             }
@@ -91,12 +91,21 @@ public class GanttChart extends ApplicationFrame {
         return collection;
     }
 
-    private static Date date(int hour, int minute) {
+    private static Date date(int assignedEndTime) {
+        int hour = assignedEndTime/60;
+        int minute = assignedEndTime%60;
         final Calendar calendar = Calendar.getInstance();
         calendar.set(YEAR, MONTH, DAY, hour, minute, 0);
         final Date result = calendar.getTime();
         return result;
     }
+
+//    private static Date date(int hour, int minute) {
+//        final Calendar calendar = Calendar.getInstance();
+//        calendar.set(YEAR, MONTH, DAY, hour, minute, 0);
+//        final Date result = calendar.getTime();
+//        return result;
+//    }
 
     public void run () {
         this.pack();

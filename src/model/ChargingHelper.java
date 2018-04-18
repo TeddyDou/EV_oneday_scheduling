@@ -52,7 +52,7 @@ public class ChargingHelper {
 
     double getRateByPriority(int evType, int priority){
         if (evType == NISSAN){
-            if (priority == 3)
+            if (priority == 2)
                 return 1.20;
             else if (priority == 1)
                 return 0.37;
@@ -84,14 +84,14 @@ public class ChargingHelper {
             return LEVEL2;
         }
         else if (priority == 2){
-            if (evType == TESLA)
-                return CHADEMO;
-            else
+            if (evType == CHEV)
                 return 0;
+            else
+                return CHADEMO;
         }
         else if (priority == 3){
             if (evType == NISSAN)
-                return CHADEMO;
+                return 0;
             else if (evType == CHEV)
                 return CCS;
             else if (evType == TESLA)
