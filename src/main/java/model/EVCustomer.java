@@ -212,8 +212,8 @@ public class EVCustomer {
 
     public void setRatioAndAbsAndScore(double rate) {
         this.setChargingTime((int)Math.ceil(this.distance/rate));
-        double temp = (double) chargingTime / timeWindow;
-//        double temp = (double) timeWindow / chargingTime;
+//        double temp = (double) chargingTime / timeWindow;
+        double temp = (double) timeWindow / chargingTime;
 
         this.setBarWindowRatio(temp);
         temp = (double) chargingTime/ (24*60);

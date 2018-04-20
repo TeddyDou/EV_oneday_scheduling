@@ -97,8 +97,8 @@ public class Model {
                 double rate = helper.getRateByPriority(ev.getTypeID(), priority);
                 if (rate != 0){
                     ev.setRatioAndAbsAndScore(rate);
-                    if (ev.getBarWindowRatio() <= 1.0)
-//                    if (ev.getBarWindowRatio() >= 1.0)
+//                    if (ev.getBarWindowRatio() <= 1.0)
+                    if (ev.getBarWindowRatio() >= 1.0)
                         maxHeap.insert(ev);
                 }
             }
@@ -233,8 +233,8 @@ public class Model {
 
     public static void main(String[] args) {
         Model m = new Model();
-//        m.setInputFile(new File("data3.1.xlsx"));
-        m.setInputFile(new File("data_final_2.xlsx"));
+        m.setInputFile(new File("data3.1.xlsx"));
+//        m.setInputFile(new File("data_final_2.xlsx"));
         try {
             m.processData();
             System.out.println("Scheduled " + m.getAssignedNumber() + " EVs.");
